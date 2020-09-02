@@ -19,9 +19,12 @@ PART I : Basic installation
 ### 1.
 Get the repository (on your host, it will be muche easier to work on it like that)  
 `git clone  https://github.com/ciolfire/docker-stack-symfony`  
+rename the previous repository folder as `symfony`
 ### 2.
 move to the project folder:  
 `cd docker-stack-symfony`  
+Get the symfony application you want to use
+`git clone  https://github.com/xxx/yyy`  
 Take a look at the `.env` file and overwrite all the default variable you want (mysql root password, database names, ...)
 Build the project:  
 `docker-compose build`  
