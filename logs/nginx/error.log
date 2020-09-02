@@ -1,0 +1,1 @@
+2020/08/03 10:25:06 [emerg] 1#1: host not found in upstream "php:9001" in /etc/nginx/conf.d/upstream.conf:1

@@ -1,0 +1,88 @@
+version: '3.7'
+services:
+  db:
+    build:
+      args:
+        - KANNEL_DATABASE
+        - KANNEL_USER
+        - KANNEL_PASSWORD
+        - PUSH_DATABASE
+        - PUSH_USER
+        - PUSH_PASSWORD
+      context: ./mysql
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    container_name: push_db
+    environment:
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+  php:
+    build: 
+      context: ./php
+    container_name: push_php
+    environment:
+      - COMPOSER_MEMORY_LIMIT=-1
+    links:
+      - db
+    ports:
+      - "9000:9001"
+    volumes:
+      - ./symfony:/var/www/symfony:cached
+      - ./logs/symfony:/var/www/symfony/var/log:cached
+  nginx:
+    build: 
+      context: ./nginx
+    container_name: push_nginx
+    links:
+      - php
+    ports:
+      - "80:80"
+    volumes:
+      - ./logs/nginx:/var/log/nginx:cached
+      - ./symfony:/var/www/symfony:cached
+  node:
+    command: sh ./yarn.sh
+    container_name: push_node
+    depends_on: 
+      - php
+    image: node:10-alpine
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    volumes:
+      - ./symfony:/var/www/symfony:cached
+    working_dir: /var/www/symfony
+  phpmyadmin:
+    container_name: push_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    ports:
+      - '8081:80'
+    environment:
+      PMA_HOST: PMA_HOST
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
+      PHP_UPLOAD_MAX_FILESIZE: PHP_UPLOAD_MAX_FILESIZE
+  kannel:
+    build: 
+      args:
+        - KANNEL_DATABASE
+        - KANNEL_USER
+        - KANNEL_PASSWORD
+      context: ./kannel
+    container_name: push_kannel
+    depends_on: 
+      - db
+    links:
+      - db
+    ports:
+      - 13013 # smsbox
+      - 13000 # kannel admin
+    restart: on-failure
+    volumes:
+      - ./symfony:/var/www/symfony:cached
+      - ./logs/symfony:/var/www/symfony/var/log:cached
+volumes:
+  db:
