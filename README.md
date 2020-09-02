@@ -19,9 +19,9 @@ PART I : Basic installation
 ### 1.
 Get the repository (on your host, it will be muche easier to work on it like that)  
 `git clone  https://github.com/ciolfire/docker-stack-symfony`  
-rename the previous repository folder as `symfony`
+Rename the previous repository folder as `symfony`
 ### 2.
-move to the project folder:  
+Move to the project folder:  
 `cd docker-stack-symfony`  
 Get the symfony application you want to use
 `git clone  https://github.com/xxx/yyy`  
@@ -60,35 +60,3 @@ As an example, if you named your database `symfony`, and connect with the user `
 
 If you still have issues with connecting, try to clear the cache:  
 `php bin/console cache:clear`  
-### 6.
-Now, we have an empty database that we still need to generate. For this, one simple solution:
-`php bin/console doctrine:migration:migrate`  
-Assuming that the operation was errorless all your table were created. You will still need to create an user to connect:  
-`php bin/console security:encode-password` First generate a password compatible with your application encryption.  
-There are three entity you *absolutely* need to initialize to be able to login:  
-
-1. An `user`, you need an email and the password you generated previously.
-2. A `company`, preferably the first one should be Optelo. id_admin should be the one of the user you just created (probably 1) and `is_credit` should be 0.
-3. A `branch`, I advice to name it "dev". `moderator_id` is again your user id, `parent_company_id` is your company id.
-4. Finally get back to your user and add it to the branch you just created by allocating him this branch id as `branch_id`.
-### 7.
-Now we need to execute the update on the kannel db, for this, we first need to connect to the database container:  
-`docker exec -it push_db sh`
-Then we feed the update to the table:  
-`mysql -p < /scripts/kannel_update.sql`  
-Let's take this opportunity to initialize the push base:
-`mysql -p < /scripts/push_init.sql`  
-
-### 8.
-Try to login. Can you see the Dashboard ? Congrats.
-
-
-PART III : Temp
----------
-Noted for later: msgdata of the table snd-msg MUST be of type BLOB otherwise the special character will NOT be displayed and will be replaced by '?'
-
-It's mandatory to rename the following part of the trigger "after_sent_sms_insert" on sent_sms, including the correct classic push database name, or just remove it if only the symfony version will be used:
-
-The column campaign snd_campaign_id should be renamed snd_sending_id
-
-SIDENOTE FOR LATER: All the column should be cleaned and renamed without the 'snd_' prefix which is un-needed. All the snd_STATUS are redundant with the snd_last and snd_last_time, so it should ALSO be reworked. snd_sequence_number should be modified to reflect the number_id
