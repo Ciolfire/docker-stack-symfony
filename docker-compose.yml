@@ -13,7 +13,8 @@ services:
     command: ["--default-authentication-plugin=mysql_native_password"]
     container_name: push_db
     environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      - MYSQL_HOST=localhost
+      - MYSQL_ROOT_PASSWORD
     ports:
       - "3306:3306"
     volumes:
@@ -23,7 +24,7 @@ services:
       context: ./php
     container_name: push_php
     environment:
-      - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_MEMORY_LIMIT
     links:
       - db
     ports:
@@ -62,9 +63,9 @@ services:
     ports:
       - '8081:80'
     environment:
-      PMA_HOST: $PMA_HOST
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-      PHP_UPLOAD_MAX_FILESIZE: $PHP_UPLOAD_MAX_FILESIZE
+      - PMA_HOST
+      - MYSQL_ROOT_PASSWORD
+      - PHP_UPLOAD_MAX_FILESIZE
   kannel:
     build: 
       args:
