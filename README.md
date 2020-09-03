@@ -44,19 +44,3 @@ Again, check with `docker logs push_kannel` that everything worked fine.
 Last step to have a running kannel is to use `docker exec -d push_kannel /usr/local/sbin/smsbox -v 1 /kannel/conf-kannel/kannel.conf`.  
 You can remove the `-d` if you want to keep track of the logs, or simply use `docker logs push_kannel` as usual.  
 If everything went fine, your kannel service is running and working.  
-### 5.
-Now, Symfony need to know the configuration you just created, you do that by modifying the file `config/packages/doctrine.yaml`. You will see two lines like this:  
-`url: '%env(resolve:YOUR_DB_URL)%'`  
-This link to the same variable from your `.env` file, at the root of the repository.  
-Find the line `SYMFONY_DB_URL=mysql://user:pwd@push_db:3306/database_name` and replace the differents values by your local configuration.  
-Same thing for the line `KANNEL_DB_URL=mysql://user:pwd@push_db:3306/database_name`
-
-As an example, if you named your database `symfony`, and connect with the user `optelo` and the password `p4ssw0rd` you should write:
-
-`SYMFONY_DB_URL=mysql://optelo:p4ssw0rd@push_db:3306/symfony`
-
-`(const in symfony)=(managment system)://(user):(password)@(adress(here, container)):(port)/(database name)`
-
-
-If you still have issues with connecting, try to clear the cache:  
-`php bin/console cache:clear`  
