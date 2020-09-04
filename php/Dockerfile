@@ -44,6 +44,7 @@ COPY symfony.ini /etc/php7/cli/conf.d/
 COPY xdebug.ini  /etc/php7/conf.d/
 
 COPY symfony.pool.conf /etc/php7/php-fpm.d/
+
 WORKDIR /var/www/symfony
 
 CMD sh -c "composer install && php-fpm7 -F"

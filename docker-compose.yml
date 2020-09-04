@@ -51,7 +51,6 @@ services:
     image: node:10-alpine
     ports:
       - "8080:8080"
-    restart: on-failure
     volumes:
       - ./symfony:/var/www/symfony:cached
     working_dir: /var/www/symfony
