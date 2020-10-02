@@ -3,8 +3,25 @@
 
 USE kannel_database;
 
-DROP TABLE IF EXISTS snd;
+-- ===== TABLES =====
+-- Note that for each table and trigger we first DROP the ancient one to allow the creation of the new one, please keep that into mind when updating
 
+-- Table to store the receiver answers
+DROP TABLE IF EXISTS kannel_response;
+CREATE TABLE kannel_response (
+  id int(11) NOT NULL,
+  sending_id int(11) DEFAULT NULL,
+  number_id int(11) DEFAULT NULL,
+  msisdn varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  received_at datetime NOT NULL,
+  response varchar(160) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ALTER TABLE kannel_response ADD PRIMARY KEY (id);
+ALTER TABLE kannel_response MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+SET FOREIGN_KEY_CHECKS=1;
+
+-- Main table to create the communication between the push and Kannel
+DROP TABLE IF EXISTS snd;
 CREATE TABLE `kannel_database`.`snd` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Every message has a unique id' ,
   `sending_id` INT NOT NULL COMMENT 'Sending associated to the message' ,
@@ -19,9 +36,14 @@ CREATE TABLE `kannel_database`.`snd` (
   PRIMARY KEY (`id`)
   ) CHARSET=utf8 COLLATE utf8_unicode_ci COMMENT='This table holds the messages that are sent, including DLR values.'; 
 
+-- ===== TRIGGERS =====
+-- The following trigger inserts appropriate values into the send_sms table. Kannel scans this table and send out any message that is entered, subsequently deleting it.
+-- Our message keeps being held in the ‘snd’ table. We keep a reference to our record in `snd` by inserting `snd.id` in the dlr_url place holder.
+
 -- first, we drop the triggers if it exists already, in case we are updating
 DROP TRIGGER IF EXISTS after_snd_insert;
 DROP TRIGGER IF EXISTS after_sent_sms_insert;
+DROP TRIGGER IF EXISTS set_sender_id;
 
 DELIMITER //
 -- This trigger is set when we add a new message to be sent in snd
@@ -44,4 +66,36 @@ FOR EACH ROW BEGIN
   END IF;
 END;//
 
+-- This trigger set the sending_id in the response table of kannel to better visualize the flow of the messages
+DELIMITER //
+CREATE TRIGGER set_sender_id
+BEFORE INSERT ON kannel_response
+FOR EACH ROW
+  BEGIN
+    SET NEW.sending_id = (SELECT sending_id FROM `snd` WHERE snd.receiver = NEW.msisdn ORDER BY id DESC LIMIT 1);
+    SET NEW.number_id = (SELECT number_id FROM `snd` WHERE snd.receiver = NEW.msisdn ORDER BY id DESC LIMIT 1);
+  END//
 DELIMITER ;
+
+
+
+-- ===== UNKNOW TABLES =====
+
+-- I have no idea what this table is used for...
+-- DROP TABLE IF EXISTS dlr;
+-- CREATE TABLE dlr (
+--   smsc varchar(40) DEFAULT NULL,
+--   ts varchar(40) DEFAULT NULL,
+--   destination varchar(40) DEFAULT NULL,
+--   source varchar(40) DEFAULT NULL,
+--   service varchar(40) DEFAULT NULL,
+--   url varchar(255) DEFAULT NULL,
+--   mask int(10) DEFAULT NULL,
+--   status int(10) DEFAULT NULL,
+--   boxc varchar(40) DEFAULT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- -- Archive table ..?
+-- DROP TABLE IF EXISTS sent_sms_save_mo;
+-- CREATE TABLE sent_sms_save_mo LIKE sent_sms;
+-- ALTER TABLE sent_sms_save_mo CHANGE sql_id sql_id BIGINT(20) UNSIGNED NOT NULL;
