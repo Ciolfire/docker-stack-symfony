@@ -50,7 +50,7 @@ services:
     container_name: push_node
     depends_on: 
       - php
-    image: node:10-alpine
+    image: node:alpine
     ports:
       - "8080:8080"
     restart: on-failure
