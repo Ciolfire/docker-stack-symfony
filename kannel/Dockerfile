@@ -1,3 +1,6 @@
+#old
+FROM alpine
+#new
 FROM alpine:3.12
 
 LABEL maintainer="Loïc Plaire <loic.plaire@optelo.com>"
