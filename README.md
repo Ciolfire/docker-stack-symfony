@@ -24,7 +24,7 @@ Create a folder `symfony` in the repo root
 Move to the project folder:  
 `cd docker-stack-symfony/symfony`  
 Get the symfony application you want to use
-`git clone .  https://github.com/xxx/yyy`  
+`git clone https://github.com/xxx/yyy` .
 Take a look at the `.env` file and overwrite all the default variable you want (mysql root password, database names, ...)
 Build the project:  
 `docker-compose build`  
