@@ -47,7 +47,8 @@ COPY symfony.pool.conf /etc/php7/php-fpm.d/
 
 WORKDIR /var/www/symfony
 
-CMD sh -c "composer install --prefer-dist --no-dev && php-fpm7 -F"
-# CMD ["php-fpm7", "-F"]
+CMD sh -c "composer install --prefer-dist && php-fpm7 -F"
+# CMD sh -c "composer update && php-fpm7 -F"
+#  CMD ["php-fpm7", "-F"]
 
 EXPOSE 9001
