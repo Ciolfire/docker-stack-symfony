@@ -1,5 +1,3 @@
-#old
-FROM alpine
 #new
 FROM alpine:3.12
 
@@ -54,11 +52,9 @@ ARG KANNEL_DATABASE
 ARG KANNEL_USER
 ARG KANNEL_PASSWORD
 
-RUN sed -i "s/kannel_database/${KANNEL_DATABASE}/g" /kannel/conf-kannel/*.conf
-RUN sed -i "s/kannel_user/${KANNEL_USER}/g" /kannel/conf-kannel/*.conf
-RUN sed -i "s/kannel_password/${KANNEL_PASSWORD}/g" /kannel/conf-kannel/*.conf
-
-RUN cat /kannel/conf-kannel/*.conf
+RUN sed -i "s/kannel_database/$KANNEL_DATABASE/g" /kannel/conf-kannel/*.conf
+RUN sed -i "s/kannel_user/$KANNEL_USER/g" /kannel/conf-kannel/*.conf
+RUN sed -i "s/kannel_password/$KANNEL_PASSWORD/g" /kannel/conf-kannel/*.conf
 
 RUN chmod 777 /kannel/store /kannel/logs
 WORKDIR /kannel/sources-kannel/trunk/gwlib/
@@ -69,4 +65,4 @@ RUN make
 
 EXPOSE 13013 13000 2346 13015
 
-CMD /usr/local/sbin/bearerbox -v 1 /kannel/conf-kannel/kannel.conf 
+CMD /usr/local/sbin/bearerbox -v 1 /kannel/conf-kannel/kannel.conf
